@@ -1,0 +1,21 @@
+{
+  "name": "Nextflow Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "settings": {
+    "java.errors.incompleteClasspath.severity": "ignore"
+  },
+  "extensions": [
+    "vscjava.vscode-java-pack",       // Java support
+    "pivotal.vscode-groovy",          // Groovy language support
+    "ms-azuretools.vscode-docker",    // Dockerfile / container tooling
+    "GitHub.copilot",                 // GitHub Copilot AI pair programmer
+    "GitHub.copilot-chat",            // GitHub Copilot Chat interface
+    "nextflow.nextflow",	      // Nextflow support
+],
+  "postCreateCommand": "nextflow -version",
+  "remoteUser": "vscode"
+}
+
