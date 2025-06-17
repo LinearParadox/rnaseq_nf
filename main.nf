@@ -4,9 +4,13 @@
  * Basic nextflow pipeline for rna seq
  */
 include { STARindex } from './modules/STAR/star.nf'
+include { salmonIndex } from './modules/salmon/salmon.nf'
+
 
 workflow {
-    // Generate a STAR index
-    STARindex(file(params.genome), file(params.gtf))
+    gtf = file(params.gtf)
+    genome = file(params.genome)
+    transcriptome = file(params.transcriptome)
+    STARindex(genome, gtf)
+    salmonIndex(genome, transcriptome)
 }
-
