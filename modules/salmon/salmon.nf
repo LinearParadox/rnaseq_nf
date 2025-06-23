@@ -11,8 +11,9 @@
     input: 
     path full_genome
     path transcriptome
+    val output_name
     output:
-        path 'salmon_index', emit: index
+        path '${output_name}', emit: index
     script:
     """
     grep "^>" <(gunzip -c ${full_genome}) | cut -d " " -f 1 > decoys.txt
@@ -20,7 +21,7 @@
     cat ${transcriptome} ${full_genome} > salmon_combined_genome.fa
     salmon index -t salmon_combined_genome.fa \\
                  -d decoys.txt \\
-                 -i salmon_index \\
+                 -i ${output_name} \\
                  --gencode \\
                  -p ${task.cpus}
     """
