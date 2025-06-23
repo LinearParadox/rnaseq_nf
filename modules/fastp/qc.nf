@@ -9,7 +9,7 @@ process fastP{
     input:
     tuple val(sample), path(r1), path(r2)
     output:
-    tuple val(sample), path("fastp_${sample}.json"), emit: json
+    path "*fastp.{json,html}", emit: fastp_results
     tuple val(sample), path("${r1.simpleName}_trimmed.fastq.gz"), path("${r2.simpleName}_trimmed.fastq.gz"), emit: reads
     script:
     """

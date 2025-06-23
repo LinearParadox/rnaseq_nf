@@ -3,22 +3,22 @@
 /*  
  * Basic nextflow pipeline for rna seq
  */
-include { STARindex } from './modules/STAR/star.nf'
-include { salmonIndex as salmonIndex } from './modules/salmon/salmon.nf'
-include {salmonIndex as salmonTranscriptome} from './modules/salmon/salmon.nf'
+include { salmon_index } from './index_workflows.nf'
+include { salmon_index as salmon_index_transcript_level } from './index_workflows.nf'
+include { star_index } from './index_workflows.nf'
+include { fastP } from './modules/fastp/qc.nf'
 
-
-workflow index {
-    gtf = file(params.gtf)
-    genome = file(params.genome)
-    transcriptome = file(params.transcriptome)
-    STAR_index=STARindex(genome, gtf)
-    salmon_index=salmonIndex(genome, transcriptome, "salmon_genome")
-    if ( params.transcript_level ){
-        transcript_level_transcriptome = file(params.transcript_level_transcriptome)
-        full_transcript = salmonTranscriptome(genome, transcript_level_transcriptome, "salmon_transcriptome")
-    }
-    }
 workflow {
-    samples = Channel.fromPath(params.samplesheet).splitCsv().view { row -> "${row[0]} - ${row[1]} - ${row[2]}" }
+    /*
+    salmon_genome_index = salmon_index(file(params.genome), file(params.transcriptome), "salmon_gene_level")
+    if (params.transcript_level) {
+        salmon_transcript_index = salmon_index_transcript_level(file(params.genome), file(params.transcript_level_transcriptome), "salmon_transcript_level")
+    }
+    else {
+        salmon_transcript_index = null
+    }
+    */
+    samples = Channel.fromPath(params.samplesheet).splitCsv()
+    fastp_results = fastP(samples)
+
 }
