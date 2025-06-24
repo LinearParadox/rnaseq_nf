@@ -7,18 +7,17 @@
  
  process STARindex {
     tag "STAR index"
+    label 'star'
 
     publishDir "${params.outdir}/ref/", mode: 'copy'
 
-    cpus star_threads
-    memory star_memory
+    cpus 16
+    memory 64.GB
 
     input: 
     path genome
     path gtf
     val read_length
-    val star_threads
-    val star_memory
 
     output:
     path 'STAR_index', emit: index
@@ -34,16 +33,18 @@
         gunzip -f ${gtf}
     fi
     STAR --runMode genomeGenerate \\
-            --runThreadN ${star_threads} \\
+            --runThreadN ${task.cpus} \\
             --genomeDir STAR_index \\
             --genomeFastaFiles "${decompressed_genome}" \\
             --sjdbGTFfile "${decompressed_gtf}" \\
-            --runThreadN ${star_threads} \\
             --sjdbOverhang ${read_length}-1 \\
     """
  }
 
 process STARalign {
+    cpus 16
+    memory 64.GB
+    label 'star'
     tag "STAR align on $sample"
 
     publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.bam"
@@ -52,9 +53,6 @@ process STARalign {
     tuple val(sample), path(r1), path(r2)
     path index
     path gtf
-    val star_threads
-    val star_memory
-
     output:
     tuple val(sample), path("Aligned.out.bam"), emit: bam
     path "Log.final.out", emit: log
@@ -67,7 +65,7 @@ process STARalign {
     fi
     STAR --genomeDir ${index} \\
          --readFilesIn ${r1} ${r2} \\
-         --runThreadN ${star_threads} \\
+         --runThreadN ${task.cpus} \\
          --twoPassMode Basic \\
          --readFilesCommand zcat \\
          --sjdbGTFfile ${decompressed_gtf} \\

@@ -15,10 +15,9 @@ workflow {
         def r2 = file(it[2])
         return [sample, r1, r2]
     } | groupTuple
-    qc = qc_samples(samples, params.fastp_threads)
-    star_index = STARindex(file(params.genome), file(params.gtf), params.read_length, params.star_threads, params.star_memory)
-    align = STARalign(qc.reads, star_index.index, file(params.gtf), params.star_threads, params.star_memory)
-    salmon_quant = salmon_quant(align.bam, params.salmon_threads, file(params.gtf), 
-                                params.salmon_memory, params.gibbs_sampling, 
+    qc = qc_samples(samples)
+    star_index = STARindex(file(params.genome), file(params.gtf), params.read_length)
+    align = STARalign(qc.reads, star_index.index, file(params.gtf))
+    salmon_quant = salmon_quant(align.bam, file(params.gtf), params.gibbs_sampling, 
                                 params.seq_bias, params.gc_bias, params.dump_eq)
 }

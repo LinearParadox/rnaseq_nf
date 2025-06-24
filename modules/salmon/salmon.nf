@@ -1,15 +1,15 @@
  #!/usr/bin/env nextflow
 
 process salmon_quant{
-    cpus cpus
-    memory mem
+    label 'salmon'
+    tag "Salmon quant on $sample"
+    cpus 4
+    memory 12.GB
     publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.sf"
     publishDir "${params.outdir}/per-sample-outs/${sample}/equiv_classes/", mode: 'copy', pattern: "equiv_classes/*", when: params.dump_eq
     input:
     tuple val(sample), path(bam)
-    val cpus
     path gtf
-    val mem
     val gibbs_sampling
     val seq_bias
     val gc_bias
@@ -21,7 +21,7 @@ process salmon_quant{
     """
     command = "salmon quant -l A \
         -a ${bam} \
-        -p ${cpus} \
+        -p ${task.cpus} \
         --gibbsSampling ${gibbs_sampling} \
         -g ${gtf} \
         --gencode"
