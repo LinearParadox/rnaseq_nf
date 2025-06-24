@@ -3,20 +3,22 @@
 /*  
  * Basic nextflow pipeline for rna seq
  */
-include { salmon_index } from './index_workflows.nf'
-include { salmon_index as salmon_index_transcript_level } from './index_workflows.nf'
-include { star_index } from './index_workflows.nf'
-include { fastP } from './modules/fastp/qc.nf'
+include { STARindex } from './modules/STAR/star.nf'
+include { STARalign } from './modules/STAR/star.nf'
+include { qc_samples } from './workflows/qc_workflow.nf'
+include { salmon_quant } from './modules/salmon/salmon.nf'
 
 workflow {
-    salmon_genome_index = salmon_index(file(params.genome), file(params.transcriptome), "salmon_gene_level")
-    if (params.transcript_level) {
-        salmon_transcript_index = salmon_index_transcript_level(file(params.genome), file(params.transcript_level_transcriptome), "salmon_transcript_level")
-    }
-    else {
-        salmon_transcript_index = null
-    }
-    samples = Channel.fromPath(params.samplesheet).splitCsv()
-    fastp_results = fastP(samples)
-    
+    samples=Channel.fromPath(params.samplesheet).splitCsv().map {
+        def sample = it[0]
+        def r1 = file(it[1])
+        def r2 = file(it[2])
+        return [sample, r1, r2]
+    } | groupTuple
+    qc = qc_samples(samples, params.fastp_threads)
+    star_index = STARindex(file(params.genome), file(params.gtf), params.read_length, params.star_threads, params.star_memory)
+    align = STARalign(qc.reads, star_index.index, file(params.gtf), params.star_threads, params.star_memory)
+    salmon_quant = salmon_quant(align.bam, params.salmon_threads, file(params.gtf), 
+                                params.salmon_memory, params.gibbs_sampling, 
+                                params.seq_bias, params.gc_bias, params.dump_eq)
 }

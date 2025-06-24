@@ -1,25 +1,25 @@
  #!/usr/bin/env nextflow
 
 
- /*
- * Decompress files if they are gzipped
- */
-
-
-
 /*
  * Star processes for creating an index
  */
  
  process STARindex {
+    tag "STAR index"
 
     publishDir "${params.outdir}/ref/", mode: 'copy'
+
+    cpus star_threads
+    memory star_memory
 
     input: 
     path genome
     path gtf
-    val read_length = 100 // Default read length, can be adjusted if needed
-    val star_threads = 4
+    val read_length
+    val star_threads
+    val star_memory
+
     output:
     path 'STAR_index', emit: index
     script:
@@ -34,6 +34,7 @@
         gunzip -f ${gtf}
     fi
     STAR --runMode genomeGenerate \\
+            --runThreadN ${star_threads} \\
             --genomeDir STAR_index \\
             --genomeFastaFiles "${decompressed_genome}" \\
             --sjdbGTFfile "${decompressed_gtf}" \\
@@ -45,16 +46,17 @@
 process STARalign {
     tag "STAR align on $sample"
 
-    publishDir "${params.outdir}/alignments/${sample}/", mode: 'copy', pattern: "*.bam"
+    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.bam"
 
     input:
     tuple val(sample), path(r1), path(r2)
     path index
     path gtf
-    star_threads = 4
+    val star_threads
+    val star_memory
 
     output:
-    path "Aligned.out.bam", emit: bam
+    tuple val(sample), path("Aligned.out.bam"), emit: bam
     path "Log.final.out", emit: log
 
     script:

@@ -1,0 +1,4 @@
+samp1,data/hF23_TAK_100nm_S81_L003_R1_001.fastq.gz,data/hF23_TAK_100nm_S81_L003_R2_001.fastq.gz
+samp1,data/hF23_Untreated_S80_L003_R1_001.fastq.gz,data/hF23_Untreated_S80_L003_R2_001.fastq.gz
+samp2,data/hF3_TAK_100nm_S89_L003_R1_001.fastq.gz,data/hF3_TAK_100nm_S89_L003_R2_001.fastq.gz
+samp3,data/hF3_Untreated_S88_L003_R1_001.fastq.gz,data/hF3_Untreated_S88_L003_R2_001.fastq.gz
