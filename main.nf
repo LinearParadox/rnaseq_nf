@@ -16,8 +16,8 @@ workflow {
         return [sample, r1, r2]
     } | groupTuple
     qc = qc_samples(samples)
-    star_index = STARindex(file(params.genome), file(params.gtf), params.read_length)
-    align = STARalign(qc.reads, star_index.index, file(params.gtf))
+    star_index = STARindex(file(params.genome), file(params.gtf), params.readlength)
+    align = STARalign(qc.trimmed, star_index.index, file(params.gtf))
     salmon_quant = salmon_quant(align.bam, file(params.gtf), params.gibbs_sampling, 
                                 params.seq_bias, params.gc_bias, params.dump_eq)
 }

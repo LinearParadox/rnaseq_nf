@@ -12,11 +12,11 @@
     publishDir "${params.outdir}/ref/", mode: 'copy'
 
     cpus 16
-    memory 64.GB
+    memory 72.GB
 
     input: 
-    path genome
-    path gtf
+    file genome
+    file gtf
     val read_length
 
     output:
@@ -37,7 +37,7 @@
             --genomeDir STAR_index \\
             --genomeFastaFiles "${decompressed_genome}" \\
             --sjdbGTFfile "${decompressed_gtf}" \\
-            --sjdbOverhang ${read_length}-1 \\
+            --sjdbOverhang \$(( "${read_length}-1" ))
     """
  }
 
@@ -66,18 +66,18 @@ process STARalign {
     STAR --genomeDir ${index} \\
          --readFilesIn ${r1} ${r2} \\
          --runThreadN ${task.cpus} \\
-         --twoPassMode Basic \\
+         --twopassMode Basic \\
          --readFilesCommand zcat \\
          --sjdbGTFfile ${decompressed_gtf} \\
          --outSAMtype BAM SortedByCoordinate \\
-         --outFilterType BySJout    //reduces the number of "spurious" junctions
-         --outFilterMultimapNmax 20         //max number of multiple alignments allowed for a read: if exceeded, the read is consi>
-         --alignSJoverhangMin 8          //min overhang for unannotated junctions
-         --alignSJDBoverhangMin 1          //min overhang for annotated junctions
-         --outFilterMismatchNmax 999        //max number of mismatches per pair (absolute)
-         --outFilterMismatchNoverLmax 0.06       //max number of mismatches per pair relative to read length: for 2x100b, max number of>
-         --alignIntronMin 20         //min intron
-         --alignIntronMax 1000000    //max intron
-         --alignMatesGapMax 1000000    //max genomic distance between pairs
+         --outFilterType BySJout \\
+         --outFilterMultimapNmax 20 \\
+         --alignSJoverhangMin 8 \\
+         --alignSJDBoverhangMin 1 \\
+         --outFilterMismatchNmax 999 \\
+         --outFilterMismatchNoverLmax 0.06 \\
+         --alignIntronMin 20 \\
+         --alignIntronMax 1000000 \\
+         --alignMatesGapMax 1000000
     """
 }
