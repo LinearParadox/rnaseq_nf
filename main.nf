@@ -15,9 +15,19 @@ workflow {
         def r2 = file(it[2])
         return [sample, r1, r2]
     } | groupTuple
-    qc = qc_samples(samples)
-    star_index = STARindex(file(params.genome), file(params.gtf), params.readlength)
-    align = STARalign(qc.trimmed, star_index.index, file(params.gtf))
-    salmon_quant = salmon_quant(align.bam, file(params.gtf), params.gibbs_sampling, 
+    if (!params.gtf | !params.samplesheet){
+        error "A gtf file and a samplesheet must be provided for the pipeline to run."
+    }
+    if (!params.genome && !params.star_index) {
+        error "A prebuilt STAR index or a genome fasta file must be provided."
+    }
+        if (file(params.star_index).exists()) {
+        star_index = channel.fromPath(params.star_index).first()
+    } else {
+    star_index = STARindex(file(params.genome), file(params.gtf), params.readlength).out.first()
+    }
+    align = STARalign(qc_samples(samples).trimmed, star_index, file(params.gtf))
+    salmon_quant = salmon_quant(align.bam, file(params.genome), file(params.gtf), params.gibbs_sampling,
                                 params.seq_bias, params.gc_bias, params.dump_eq)
 }
+

@@ -18,9 +18,6 @@
     file genome
     file gtf
     val read_length
-
-    output:
-    path 'STAR_index', emit: index
     script:
     decompressed_genome = genome.name.replaceAll(/\.gz$/, '')
     decompressed_gtf = gtf.name.replaceAll(/\.gz$/, '')
@@ -45,16 +42,16 @@ process STARalign {
     cpus 16
     memory 64.GB
     label 'star'
-    tag "STAR align on $sample"
+    tag "STAR align"
 
     publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.bam"
 
     input:
     tuple val(sample), path(r1), path(r2)
-    path index
+    path index 
     path gtf
     output:
-    tuple val(sample), path("Aligned.out.bam"), emit: bam
+    tuple val(sample), path("*.bam"), emit: bam
     path "Log.final.out", emit: log
 
     script:

@@ -2,14 +2,15 @@
 
 process salmon_quant{
     label 'salmon'
-    tag "Salmon quant on $sample"
+    tag "Salmon quant"
     cpus 4
     memory 12.GB
     publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.sf"
     publishDir "${params.outdir}/per-sample-outs/${sample}/equiv_classes/", mode: 'copy', pattern: "equiv_classes/*", when: params.dump_eq
     input:
     tuple val(sample), path(bam)
-    path gtf
+    file transcriptome
+    file gtf
     val gibbs_sampling
     val seq_bias
     val gc_bias
@@ -19,20 +20,22 @@ process salmon_quant{
 
     script:
     """
-    command = "salmon quant -l A \
+    command="salmon quant -l A \
         -a ${bam} \
+        -t ${transcriptome} \
         -p ${task.cpus} \
-        --gibbsSampling ${gibbs_sampling} \
+        --numGibbsSamples ${gibbs_sampling} \
         -g ${gtf} \
-        --gencode"
+        --gencode \
+        -o salmon_quant_${sample}"
     if [ ${seq_bias} = true ]; then
-        command += " --seqBias"
+        command+=" --seqBias"
     fi
     if [ ${gc_bias} = true ]; then
-        command += " --gcBias"
+        command+=" --gcBias"
     fi
     if [ ${dump_eq} = true ]; then
-        command += " --dumpEq --auxDir equiv_classes"
+        command+=" --dumpEq --auxDir equiv_classes"
     fi
     eval "\${command}"
     """

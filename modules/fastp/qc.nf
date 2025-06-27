@@ -6,7 +6,7 @@
  process merge_lanes{
     cpus 1
     memory 8.GB
-    tag "Merging lanes for $sample"
+    tag "Merging lanes"
     input:
     tuple val(sample), path(r1), path(r2)
     output:
@@ -24,7 +24,7 @@ process fastP{
     label 'fastp'
     memory 12.GB
     cpus 4
-    tag "FASTP on $sample"
+    tag "FASTP"
     publishDir "${params.outdir}/per-sample-outs/${sample}/fastp.html", mode: 'copy', pattern: "*.html"
     input:
     tuple val(sample), path(r1), path(r2)

@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     liblzma-dev \
     libcurl4-openssl-dev \
     libssl-dev \
-    xxd \
+    xxd \ 
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /usr/local/src
 RUN wget https://github.com/samtools/samtools/releases/download/1.22/samtools-1.22.tar.bz2 && \
