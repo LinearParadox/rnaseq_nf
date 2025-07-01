@@ -3,31 +3,46 @@
 /*  
  * Basic nextflow pipeline for rna seq
  */
-include { STARindex } from './modules/STAR/star.nf'
-include { STARalign } from './modules/STAR/star.nf'
+
 include { qc_samples } from './workflows/qc_workflow.nf'
 include { salmon_quant } from './modules/salmon/salmon.nf'
+include { salmon_index } from './modules/salmon/salmon.nf'
+include { star } from './workflows/STAR.nf'
+include { differential_expression } from './modules/edgeR/edgeR.nf'
+
 
 workflow {
+    if (!params.gtf | !params.samplesheet){
+        error "A gtf file and a samplesheet must be provided for the pipeline to run."
+    }
     samples=Channel.fromPath(params.samplesheet).splitCsv().map {
         def sample = it[0]
         def r1 = file(it[1])
         def r2 = file(it[2])
         return [sample, r1, r2]
-    } | groupTuple
-    if (!params.gtf | !params.samplesheet){
-        error "A gtf file and a samplesheet must be provided for the pipeline to run."
+    } | groupTuple()
+    qc_samples(samples)
+    if (params.star_align) {
+        star = star(qc_samples.out.trimmed, params.star_index, params.gtf, params.genome, params.read_length)
     }
-    if (!params.genome && !params.star_index) {
-        error "A prebuilt STAR index or a genome fasta file must be provided."
-    }
-        if (file(params.star_index).exists()) {
-        star_index = channel.fromPath(params.star_index).first()
+    if (!file(params.salmon_index).exists()) {
+        salmon_index = salmon_index(file(params.salmon_transcriptome), file(params.genome), params.kmer_size).index.collect()
     } else {
-    star_index = STARindex(file(params.genome), file(params.gtf), params.readlength).out.first()
+        salmon_index = channel.fromPath(params.salmon_index).collect()
     }
-    align = STARalign(qc_samples(samples).trimmed, star_index, file(params.gtf))
-    salmon_quant = salmon_quant(align.bam, file(params.genome), file(params.gtf), params.gibbs_sampling,
-                                params.seq_bias, params.gc_bias, params.dump_eq)
+    salmon_quant = salmon_quant(qc_samples.out.trimmed, salmon_index, file(params.gtf), params.library_type, params.gibbs_sampling,
+                                params.seq_bias, params.gc_bias, params.pos_bias, params.dump_eq)
+    salmon_genes_out = salmon_quant.transcripts.collectFile() {samp,cond -> ["gene_out_paths.csv", "${samp},${cond}\n"]
+    }
+    differential_expression(
+        salmon_quant.salmon_output.collect(),
+        file('assets/differential_genes.R'),
+        salmon_index,
+        salmon_genes_out,
+        file(params.salmon_transcriptome),
+        file(params.gtf),
+        params.organism,
+        file(params.design),
+        file(params.contrast_matrix)
+    )
 }
-

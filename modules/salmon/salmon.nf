@@ -3,30 +3,33 @@
 process salmon_quant{
     label 'salmon'
     tag "Salmon quant"
-    cpus 4
-    memory 12.GB
-    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.sf"
-    publishDir "${params.outdir}/per-sample-outs/${sample}/equiv_classes/", mode: 'copy', pattern: "equiv_classes/*", when: params.dump_eq
+    cpus 16
+    memory 24.GB
+    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', saveAs: "salmon_quant"
     input:
-    tuple val(sample), path(bam)
-    file transcriptome
+    tuple val(sample), path(r1), path(r2)
+    path salmon_index
     file gtf
+    val library_type
     val gibbs_sampling
     val seq_bias
     val gc_bias
+    val pos_bias
     val dump_eq
     output:
-    path "*.sf", emit: quant
+    path "salmon_quant*", emit: salmon_output
+
 
     script:
     """
     command="salmon quant -l A \
-        -a ${bam} \
-        -t ${transcriptome} \
+        -i ${salmon_index} \
+        -1 ${r1} \
+        -2 ${r2} \
+        --validateMappings \
         -p ${task.cpus} \
         --numGibbsSamples ${gibbs_sampling} \
         -g ${gtf} \
-        --gencode \
         -o salmon_quant_${sample}"
     if [ ${seq_bias} = true ]; then
         command+=" --seqBias"
@@ -37,6 +40,28 @@ process salmon_quant{
     if [ ${dump_eq} = true ]; then
         command+=" --dumpEq --auxDir equiv_classes"
     fi
+    if [ ${pos_bias} = true ]; then
+        command+=" --posBias"
+    fi
     eval "\${command}"
     """
 }
+
+process salmon_index{
+    label 'salmon'
+    tag "Salmon index"
+    publishDir "${params.outdir}/ref/", mode: 'copy'
+    input:
+    file transcriptome
+    file genome
+    val kmer_size
+    output:
+    path "salmon_index", emit: index
+    script:
+    """
+    grep "^>" <(gunzip -cf ${genome}) | cut -d " " -f 1 > decoys.txt
+    sed -i.bak -e 's/>//g' decoys.txt
+    cat ${transcriptome} ${genome} > salmon_genome.fa.gz
+    salmon index -t salmon_genome.fa.gz -d decoys.txt -p ${task.cpus} -i salmon_index --gencode
+    """
+} 

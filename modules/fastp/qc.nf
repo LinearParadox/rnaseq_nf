@@ -25,7 +25,7 @@ process fastP{
     memory 12.GB
     cpus 4
     tag "FASTP"
-    publishDir "${params.outdir}/per-sample-outs/${sample}/fastp.html", mode: 'copy', pattern: "*.html"
+    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.html"
     input:
     tuple val(sample), path(r1), path(r2)
     output:
