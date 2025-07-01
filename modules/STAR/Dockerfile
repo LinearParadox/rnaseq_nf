@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libssl-dev \
     xxd \ 
+    grep \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /usr/local/src

@@ -45,6 +45,7 @@ process STARalign {
     tag "STAR align"
 
     publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.bam"
+    publishDir "${params.outdir}/pipeline_info/", mode: "copy", pattern: "STAR_version.txt"
 
     input:
     tuple val(sample), path(r1), path(r2)
@@ -52,11 +53,13 @@ process STARalign {
     path gtf
     output:
     tuple val(sample), path("*.bam"), emit: bam
-    path "Log.final.out", emit: log
+    path "${sample}_Log.final.out", emit: log
+    path "STAR_version.txt", emit: star_version
 
     script:
     decompressed_gtf = gtf.name.replaceAll(/\.gz$/, '')
     """
+    STAR | grep "^STAR version" > STAR_version.txt
     if [[ "${gtf}" == *.gz ]]; then
         gunzip -f ${gtf}
     fi
@@ -76,5 +79,6 @@ process STARalign {
          --alignIntronMin 20 \\
          --alignIntronMax 1000000 \\
          --alignMatesGapMax 1000000
+    mv  Log.final.out ${sample}_Log.final.out
     """
 }

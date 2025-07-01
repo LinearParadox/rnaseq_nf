@@ -32,10 +32,11 @@ workflow {
     }
     salmon_quant = salmon_quant(qc_samples.out.trimmed, salmon_index, file(params.gtf), params.library_type, params.gibbs_sampling,
                                 params.seq_bias, params.gc_bias, params.pos_bias, params.dump_eq)
-    salmon_genes_out = salmon_quant.transcripts.collectFile() {samp,cond -> ["gene_out_paths.csv", "${samp},${cond}\n"]
+    salmon_genes_out = salmon_quant.salmon_output.collectFile() {samp,cond -> ["gene_out_paths.csv", "${samp},salmon_quant_${samp}\n"]
     }
+    salmon_files = salmon_quant.salmon_file.collect()
     differential_expression(
-        salmon_quant.salmon_output.collect(),
+        salmon_files,
         file('assets/differential_genes.R'),
         salmon_index,
         salmon_genes_out,

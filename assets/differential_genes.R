@@ -5,12 +5,16 @@ library(limma)
 library(msigdbr)
 library(tximeta)
 
+writeLines(capture.output(sessionInfo()), "sessionInfo_deg.txt")
+
 #1 samples
 #2 fasta
 #3 gtf
 #4 organism
 #5 design_matrix
 #6 contrast matrix
+#7 min_gs size
+#8 max_gs size
 
 
 
@@ -19,32 +23,37 @@ samples = read.csv(args[[1]], header=F)
 fasta = args[[2]]
 gtf = args[[3]]
 organism=args[[4]]
-design = read.csv(args[[5]], header=T, row.names=1)
-coef <- read.csv(args[[6]], header=T, row.names=1)
+design = as.matrix(read.csv(args[[5]], header=T, row.names=1))
+coef <- as.matrix(read.csv(args[[6]], header=T, row.names=1))
+min_size = as.numeric(args[[7]])
+max_size = as.numeric(args[[8]])
 colnames(samples) <- c("names", "files")
-samples$files <- paste0(samples$files, "quant.sf")
+samples$files <- paste0(samples$files, "/quant.sf")
 if (organism == "human") {
   library(org.Hs.eg.db)
   orgdb = org.Hs.eg.db
-  makeLinkedTxome(indexDir="quant_files/salmon_index", source="Gencode", organism="Homo sapiens",
+  makeLinkedTxome(indexDir="salmon_index", source="Gencode", organism="Homo sapiens",
                   release="--", genome="--", fasta=fasta, gtf=gtf, write=FALSE)
-  } else {
+} else {
   library(org.Mm.eg.db)
-  makeLinkedTxome(indexDir="quant_files/salmon_index", source="Gencode", organism="Mus musculus",
+  makeLinkedTxome(indexDir="salmon_index", source="Gencode", organism="Mus musculus",
                   release="--", genome="", fasta=fasta, gtf=gtf, write=FALSE)
   orgdb = org.Mm.eg.db
 }
+print(samples)
 se <- tximeta(samples, useHub = T)
 se <- summarizeToGene(se, assignRanges="abundant")
 gse <- addIds(se, "SYMBOL", gene=TRUE)
 y <- makeDGEList(gse)
 y$samples$lib.size <- colSums(y$counts)
-y <- normLibSizes(y)
+#y <- normLibSizes(y)
+print(y)
 dir.create("figs", showWarnings = FALSE)
 png("figs/MDS_plot.png")
 plotMDS(y)
 dev.off()
-fit <- glmQLFit(y,design, robust=T)
+print(design)
+fit <- glmQLFit(y, design=design, robust=T)
 png("figs/edgeR_counts_fit.png")
 plotQLDisp(fit)
 dev.off()
@@ -59,8 +68,10 @@ test<-lapply(colnames(coef), FUN=function(x){
   write.csv(df, paste0("csv/de/", x, ".csv"))
   ranked_list <- df$logFC * -log10(df$PValue)
   names(ranked_list) <- df$gene_id
+  ranked_list <- ranked_list[!is.na(ranked_list)]
+  ranked_list <- ranked_list[!is.infinite(ranked_list)]
   ranked_list <- ranked_list[order(ranked_list, decreasing = T)]
-  hallmark <- msigdbr(species=organism, category="H") %>%
+  hallmark <- msigdbr(species=organism, collection="H") %>%
     dplyr::select(c(gs_name, ensembl_gene))
   gsea <- clusterProfiler::GSEA(ranked_list, TERM2GENE = hallmark)
   write.csv(gsea[], paste0("csv/gsea/", x, "_hallmarks.csv"))
@@ -68,8 +79,8 @@ test<-lapply(colnames(coef), FUN=function(x){
         OrgDb        = orgdb,
         keyType      = "ENSEMBL",
         ont          = "CC",
-        minGSSize = 50,
-        maxGSSize    = 500,
+        minGSSize = min_size,
+        maxGSSize    = max_size,
         pvalueCutoff = 0.05,
         verbose      = FALSE)
   write.csv(gsea[], paste0("csv/gsea/", x, "_gocc.csv"))
@@ -77,8 +88,8 @@ test<-lapply(colnames(coef), FUN=function(x){
         OrgDb        = orgdb,
         ont          = "MF",
         keyType      = "ENSEMBL",
-        minGSSize = 50,
-        maxGSSize    = 500,
+        minGSSize = min_size,
+        maxGSSize    = max_size,
         pvalueCutoff = 0.05,
         verbose      = FALSE)
   write.csv(gsea[], paste0("csv/gsea/", x, "_gomf.csv"))
@@ -86,12 +97,9 @@ test<-lapply(colnames(coef), FUN=function(x){
         OrgDb        = orgdb,
         ont          = "BP",
         keyType      = "ENSEMBL",
-        minGSSize = 50,
-        maxGSSize    = 500,
+        minGSSize = min_size,
+        maxGSSize    = max_size,
         pvalueCutoff = 0.05,
         verbose      = FALSE)
   write.csv(gsea[], paste0("csv/gsea/", x, "_gomf.csv"))
 })
-
-
-

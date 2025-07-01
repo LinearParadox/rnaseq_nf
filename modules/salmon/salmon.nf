@@ -5,7 +5,9 @@ process salmon_quant{
     tag "Salmon quant"
     cpus 16
     memory 24.GB
-    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', saveAs: "salmon_quant"
+    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', saveAs: {file -> "salmon_quant"}, 
+              pattern: "salmon_quant"
+    publishDir "${params.outdir}/pipeline_info/", mode: "copy", pattern: "salmon_version.txt"
     input:
     tuple val(sample), path(r1), path(r2)
     path salmon_index
@@ -17,11 +19,15 @@ process salmon_quant{
     val pos_bias
     val dump_eq
     output:
-    path "salmon_quant*", emit: salmon_output
+    tuple val(sample), path("${sample}_salmon_quant"), emit: salmon_output
+    path ("${sample}_salmon_quant"), emit: salmon_file
+    path "salmon_version.txt", emit: salmon_version
+
 
 
     script:
     """
+    salmon -v > salmon_version.txt
     command="salmon quant -l A \
         -i ${salmon_index} \
         -1 ${r1} \
