@@ -73,8 +73,9 @@ test<-lapply(colnames(coef), FUN=function(x){
   ranked_list <- ranked_list[order(ranked_list, decreasing = T)]
   hallmark <- msigdbr(species=organism, collection="H") %>%
     dplyr::select(c(gs_name, ensembl_gene))
+  dir.create(paste0("csv/gsea/", x), showWarnings = FALSE)
   gsea <- clusterProfiler::GSEA(ranked_list, TERM2GENE = hallmark)
-  write.csv(gsea[], paste0("csv/gsea/", x, "_hallmarks.csv"))
+  write.csv(gsea[], paste0("csv/gsea/", x, "/hallmarks.csv"))
   gseGO(geneList     = ranked_list,
         OrgDb        = orgdb,
         keyType      = "ENSEMBL",
@@ -83,7 +84,7 @@ test<-lapply(colnames(coef), FUN=function(x){
         maxGSSize    = max_size,
         pvalueCutoff = 0.05,
         verbose      = FALSE)
-  write.csv(gsea[], paste0("csv/gsea/", x, "_gocc.csv"))
+  write.csv(gsea[], paste0("csv/gsea/", x, "/gocc.csv"))
   gseGO(geneList     = ranked_list,
         OrgDb        = orgdb,
         ont          = "MF",
@@ -92,7 +93,7 @@ test<-lapply(colnames(coef), FUN=function(x){
         maxGSSize    = max_size,
         pvalueCutoff = 0.05,
         verbose      = FALSE)
-  write.csv(gsea[], paste0("csv/gsea/", x, "_gomf.csv"))
+  write.csv(gsea[], paste0("csv/gsea/", x, "/gomf.csv"))
   gseGO(geneList     = ranked_list,
         OrgDb        = orgdb,
         ont          = "BP",
@@ -101,5 +102,5 @@ test<-lapply(colnames(coef), FUN=function(x){
         maxGSSize    = max_size,
         pvalueCutoff = 0.05,
         verbose      = FALSE)
-  write.csv(gsea[], paste0("csv/gsea/", x, "_gomf.csv"))
+  write.csv(gsea[], paste0("csv/gsea/", x, "/gomf.csv"))
 })

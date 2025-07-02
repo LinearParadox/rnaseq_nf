@@ -7,12 +7,14 @@ process multiqc{
     path fastp_logs
     path salmon_logs
     path star_logs
-    path "csv"
     output:
     path "multiqc_report.html", emit: report
     script:
     """
-    multiqc .
+    echo 'use_filename_as_sample_name:
+        - fastp' > multiqc_config.yaml
+    multiqc -c multiqc_config.yaml .
+
     """
 
 }

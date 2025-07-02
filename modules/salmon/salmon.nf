@@ -19,8 +19,8 @@ process salmon_quant{
     val pos_bias
     val dump_eq
     output:
-    tuple val(sample), path("${sample}_salmon_quant"), emit: salmon_output
-    path ("${sample}salmon"), emit: salmon_file
+    tuple val(sample), path("${sample}"), emit: salmon_output
+    path ("${sample}"), emit: salmon_file
     path "salmon_version.txt", emit: salmon_version
 
 
@@ -36,7 +36,7 @@ process salmon_quant{
         -p ${task.cpus} \
         --numGibbsSamples ${gibbs_sampling} \
         -g ${gtf} \
-        -o ${sample}salmon"
+        -o ${sample}"
     if [ ${seq_bias} = true ]; then
         command+=" --seqBias"
     fi

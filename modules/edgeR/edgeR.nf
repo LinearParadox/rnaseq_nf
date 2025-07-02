@@ -21,14 +21,16 @@
     val organism
     file design
     file contrast_matrix
+    val min_size
+    val max_size
     output:
     path "figs", emit: figures
     path "csv", emit: csv
-    path "sessionInfo.txt", emit: session_info
+    path "sessionInfo_deg.txt", emit: session_info
     script:
     """
     mkdir cache
-    Rscript ${script} ${samplesheet} ${transcriptome} ${gtf} ${organism} ${design} ${contrast_matrix}
+    Rscript ${script} ${samplesheet} ${transcriptome} ${gtf} ${organism} ${design} ${contrast_matrix} ${min_size} ${max_size}
 
     """
 

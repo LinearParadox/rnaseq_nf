@@ -16,6 +16,6 @@ workflow star {
         }
         align = STARalign(samples, star_index, file(gtf))
     emit:
-        bam = STARalign.out.bam
-        starlog = STARalign.out.log
+        bam = align.bam
+        starlog = align.log
         }
