@@ -10,9 +10,9 @@ workflow star {
         read_length
     main:
         if (file(star_index).exists()) {
-        star_index = channel.fromPath(star_index).first()
+        star_index = channel.fromPath(star_index).collect()
         } else {
-        star_index = STARindex(file(genome), file(gtf), read_length).out.first()
+        star_index = STARindex(file(genome), file(gtf), read_length).out.collect()
         }
         align = STARalign(samples, star_index, file(gtf))
     emit:
