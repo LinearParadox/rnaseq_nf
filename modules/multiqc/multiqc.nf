@@ -2,7 +2,7 @@ process multiqc{
     cpus 1
     memory 4.GB
     tag "MultiQC"
-    publishDir "${params.outdir}/multiqc", mode: 'copy'
+    publishDir "${params.outdir}/", mode: 'copy'
     input:
     path fastp_logs
     path salmon_logs
