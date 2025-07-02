@@ -6,7 +6,7 @@ process salmon_quant{
     cpus 16
     memory 24.GB
     publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', saveAs: {file -> "salmon_quant"}, 
-              pattern: "salmon_quant"
+              pattern: "${sample}salmon"
     publishDir "${params.outdir}/pipeline_info/", mode: "copy", pattern: "salmon_version.txt"
     input:
     tuple val(sample), path(r1), path(r2)
@@ -20,7 +20,7 @@ process salmon_quant{
     val dump_eq
     output:
     tuple val(sample), path("${sample}_salmon_quant"), emit: salmon_output
-    path ("${sample}_salmon_quant"), emit: salmon_file
+    path ("${sample}salmon"), emit: salmon_file
     path "salmon_version.txt", emit: salmon_version
 
 
@@ -36,7 +36,7 @@ process salmon_quant{
         -p ${task.cpus} \
         --numGibbsSamples ${gibbs_sampling} \
         -g ${gtf} \
-        -o salmon_quant_${sample}"
+        -o ${sample}salmon"
     if [ ${seq_bias} = true ]; then
         command+=" --seqBias"
     fi

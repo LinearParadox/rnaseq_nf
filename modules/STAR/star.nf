@@ -79,6 +79,6 @@ process STARalign {
          --alignIntronMin 20 \\
          --alignIntronMax 1000000 \\
          --alignMatesGapMax 1000000
-    mv  Log.final.out ${sample}_Log.final.out
+    mv  Log.final.out ${sample}Log.final.out
     """
 }
