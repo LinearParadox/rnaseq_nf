@@ -27,3 +27,9 @@ All parameters can be passed through a config file:
  ## DEG Parameters
  - min_gs_size - min size for gene sets
  - max_gs_size - max size for gene sets
+
+ An example of the csv files needed can be found in the assets/examples folder.
+  - example_contrasts.csv - example of the contrast matrix
+  - example_design.csv - example of the design matrix
+  - example_samplesheet.csv - example of the samplesheet
+  - example_metadata.csv - example metadata sheet showing the conditions assigned to each sample more clearly.
