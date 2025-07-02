@@ -1,0 +1,7 @@
+custom.config
+work
+results
+.nextflow*
+.nextflow/
+data/
+.vscode/
