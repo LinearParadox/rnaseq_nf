@@ -22,8 +22,6 @@
  }
 process fastP{
     label 'fastp'
-    memory 12.GB
-    cpus 4
     tag "FASTP"
     publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.html"
     input:
