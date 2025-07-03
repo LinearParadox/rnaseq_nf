@@ -8,8 +8,8 @@ include { qc_samples } from './workflows/qc_workflow.nf'
 include { salmon_quant } from './modules/salmon/salmon.nf'
 include { salmon_index } from './modules/salmon/salmon.nf'
 include { star } from './workflows/STAR.nf'
-include { differential_expression } from './modules/edgeR/edgeR.nf'
-include { differential_transcripts } from './modules/edgeR/edgeR.nf'
+include { differential_expression } from './modules/edgeR/main.nf'
+include { differential_transcripts } from './modules/edgeR/main.nf'
 include { multiqc } from './modules/multiqc/multiqc.nf'
 
 
@@ -41,7 +41,6 @@ workflow {
     salmon_files = salmon_quant.salmon_file.collect()
     differential_expression(
         salmon_files,
-        file('assets/differential_genes.R'),
         salmon_index,
         salmon_genes_out,
         file(params.salmon_transcriptome),
@@ -54,7 +53,6 @@ workflow {
     )
     differential_transcripts(
         salmon_files,
-        file('assets/differential_transcripts.R'),
         salmon_genes_out,
         params.organism,
         file(params.design),
