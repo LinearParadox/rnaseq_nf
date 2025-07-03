@@ -8,10 +8,10 @@ include { qc_samples } from './workflows/qc_workflow.nf'
 include { salmon_quant } from './modules/salmon/salmon.nf'
 include { salmon_index } from './modules/salmon/salmon.nf'
 include { star } from './workflows/STAR.nf'
-include { differential_expression } from './modules/edgeR/edgeR.nf'
-include { differential_transcripts } from './modules/edgeR/edgeR.nf'
+include { differential_expression } from './modules/edgeR/main.nf'
+include { differential_transcripts } from './modules/edgeR/main.nf'
 include { multiqc } from './modules/multiqc/multiqc.nf'
-
+nextflow.enable.moduleBinaries = true
 
 workflow {
     if (!params.gtf | !params.samplesheet){
@@ -36,14 +36,10 @@ workflow {
     }
     salmon_quant = salmon_quant(qc_samples.out.trimmed, salmon_index, file(params.gtf), params.library_type, params.gibbs_sampling,
                                 params.seq_bias, params.gc_bias, params.pos_bias, params.dump_eq)
-    salmon_genes_out = salmon_quant.salmon_output.collectFile() {samp,cond -> ["gene_out_paths.csv","${samp},${samp}\n"]
-    }
     salmon_files = salmon_quant.salmon_file.collect()
     differential_expression(
         salmon_files,
-        file('assets/differential_genes.R'),
         salmon_index,
-        salmon_genes_out,
         file(params.salmon_transcriptome),
         file(params.gtf),
         params.organism,
@@ -54,8 +50,6 @@ workflow {
     )
     differential_transcripts(
         salmon_files,
-        file('assets/differential_transcripts.R'),
-        salmon_genes_out,
         params.organism,
         file(params.design),
         file(params.contrast_matrix)
