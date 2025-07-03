@@ -5,8 +5,7 @@ process salmon_quant{
     tag "Salmon quant"
     cpus 16
     memory 24.GB
-    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', saveAs: {file -> "salmon_quant"}, 
-              pattern: "${sample}salmon"
+    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "${sample}", saveAs: {file -> "salmon_quant"}
     publishDir "${params.outdir}/pipeline_info/", mode: "copy", pattern: "salmon_version.txt"
     input:
     tuple val(sample), path(r1), path(r2)
@@ -44,7 +43,7 @@ process salmon_quant{
         command+=" --gcBias"
     fi
     if [ ${dump_eq} = true ]; then
-        command+=" --dumpEq --auxDir equiv_classes"
+        command+=" --dumpEq"
     fi
     if [ ${pos_bias} = true ]; then
         command+=" --posBias"

@@ -6,16 +6,15 @@
  
  process differential_expression{
     cpus 2
-    memory 8.GB
+    memory 16.GB
     tag "Differential Expression"
+    label "edgeR"
     publishDir "${params.outdir}/differential_genes", mode: 'copy', pattern: "csv"
     publishDir "${params.outdir}/differential_genes/", mode: 'copy', pattern: "figs"
     publishDir "${params.outdir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_deg.txt"
     input:
     file salmon_files
-    file script
     file index
-    file samplesheet
     file transcriptome
     file gtf
     val organism
@@ -30,7 +29,7 @@
     script:
     """
     mkdir cache
-    Rscript ${script} ${samplesheet} ${transcriptome} ${gtf} ${organism} ${design} ${contrast_matrix} ${min_size} ${max_size}
+    differential_genes.R ${transcriptome} ${gtf} ${organism} ${design} ${contrast_matrix} ${min_size} ${max_size}
 
     """
 
@@ -38,15 +37,14 @@
 
   process differential_transcripts{
     cpus 2
-    memory 8.GB
+    memory 16.GB
     tag "Differential Expression"
+    label "edgeR"
     publishDir "${params.outdir}/differential_transcripts", mode: 'copy', pattern: "csv"
     publishDir "${params.outdir}/differential_transcripts/", mode: 'copy', pattern: "figs"
     publishDir "${params.outdir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_det.txt"
     input:
     file salmon_files
-    file script
-    file samplesheet
     val organism
     file design
     file contrast_matrix
@@ -57,7 +55,7 @@
     script:
     """
     mkdir cache
-    Rscript ${script} ${samplesheet} ${organism} ${design} ${contrast_matrix}
+    differential_transcripts.R  ${organism} ${design} ${contrast_matrix}
 
     """
 

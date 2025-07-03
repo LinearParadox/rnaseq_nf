@@ -12,8 +12,9 @@ workflow star {
         if (file(star_index).exists()) {
         star_index = channel.fromPath(star_index).collect()
         } else {
-        star_index = STARindex(file(genome), file(gtf), read_length).out.collect()
+        star_index = STARindex(file(genome), file(gtf), read_length).index.collect()
         }
+	println star_index
         align = STARalign(samples, star_index, file(gtf))
     emit:
         bam = align.bam
