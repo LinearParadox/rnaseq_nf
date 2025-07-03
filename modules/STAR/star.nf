@@ -18,6 +18,8 @@
     file genome
     file gtf
     val read_length
+    output:
+    path "STAR_index", emit: index
     script:
     decompressed_genome = genome.name.replaceAll(/\.gz$/, '')
     decompressed_gtf = gtf.name.replaceAll(/\.gz$/, '')
