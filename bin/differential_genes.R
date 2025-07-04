@@ -77,6 +77,7 @@ test<-lapply(colnames(coef), FUN=function(x){
   gsea <- clusterProfiler::GSEA(ranked_list, TERM2GENE = hallmark)
   write.csv(gsea[], paste0("csv/gsea/", x, "/hallmarks.csv"))
   gsea<-gseGO(geneList     = ranked_list,
+
         OrgDb        = orgdb,
         keyType      = "ENSEMBL",
         ont          = "CC",
@@ -85,6 +86,7 @@ test<-lapply(colnames(coef), FUN=function(x){
         pvalueCutoff = 0.05,
         verbose      = FALSE)
   write.csv(gsea[], paste0("csv/gsea/", x, "/gocc.csv"))
+
   gsea<-gseGO(geneList     = ranked_list,
         OrgDb        = orgdb,
         ont          = "MF",
@@ -95,6 +97,7 @@ test<-lapply(colnames(coef), FUN=function(x){
         verbose      = FALSE)
   write.csv(gsea[], paste0("csv/gsea/", x, "/gomf.csv"))
   gsea<-gseGO(geneList     = ranked_list,
+
         OrgDb        = orgdb,
         ont          = "BP",
         keyType      = "ENSEMBL",

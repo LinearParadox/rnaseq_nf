@@ -19,7 +19,7 @@ if (org == "human") {
   library(org.Mm.eg.db)
   orgdb = org.Mm.eg.db
   mart <- useEnsembl(dataset = "mmusculus_gene_ensembl", biomart='ensembl')
-  symbol_key <- "mgi_symbol"
+ symbol_key <- "mgi_symbol"
 }
 catch <- catchSalmon(rownames(design))
 divided.counts <- catch$counts/catch$annotation$Overdispersion
@@ -30,6 +30,7 @@ y$samples$lib.size <- colSums(y$counts)
 keep<-filterByExpr(y, design = design)
 y <-y[keep,,keep.lib.sizes=FALSE]
 y <- normLibSizes(y)
+
 annot <-biomaRt::select(mart, keys=rownames(y$genes), keytype="ensembl_transcript_id_version", columns=c("ensembl_transcript_id_version", symbol_key,"transcript_biotype", "transcript_is_canonical"))
 annot<-annot[!duplicated(annot$ensembl_transcript_id_version),]
 annot[!is.na(annot$transcript_is_canonical), "transcript_is_canonical"] <- "TRUE"
