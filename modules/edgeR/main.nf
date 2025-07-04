@@ -14,9 +14,6 @@
     publishDir "${params.outputDir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_deg.txt"
     input:
     file salmon_files
-    file index
-    file transcriptome
-    file gtf
     val organism
     file design
     file contrast_matrix
@@ -30,7 +27,7 @@
     """
     mkdir cache
     mkdir ah_cache
-    differential_genes.R ${transcriptome} ${gtf} ${organism} ${design} ${contrast_matrix} ${min_size} ${max_size}
+    differential_genes.R ${organism} ${design} ${contrast_matrix} ${min_size} ${max_size}
     """
 
  }

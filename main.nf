@@ -39,9 +39,6 @@ workflow {
     salmon_files = salmon_quant.salmon_file.collect()
     differential_expression(
         salmon_files,
-        salmon_index,
-        file(params.salmon_transcriptome),
-        file(params.gtf),
         params.organism,
         file(params.design),
         file(params.contrast_matrix),

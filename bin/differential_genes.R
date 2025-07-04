@@ -9,8 +9,6 @@ library(msigdbr)
 library(tximport)
 writeLines(capture.output(sessionInfo()), "sessionInfo_deg.txt")
 
-#2 fasta
-#3 gtf
 #4 organism
 #5 design_matrix
 #6 contrast matrix
@@ -20,13 +18,11 @@ writeLines(capture.output(sessionInfo()), "sessionInfo_deg.txt")
 
 
 args = commandArgs(trailingOnly = T)
-fasta = args[[1]]
-gtf = args[[2]]
-organism=args[[3]]
-design = as.matrix(read.csv(args[[4]], header=T, row.names=1))
-coef <- as.matrix(read.csv(args[[5]], header=T, row.names=1))
-min_size = as.numeric(args[[6]])
-max_size = as.numeric(args[[7]])
+organism=args[[1]]
+design = as.matrix(read.csv(args[[2]], header=T, row.names=1))
+coef <- as.matrix(read.csv(args[[3]], header=T, row.names=1))
+min_size = as.numeric(args[[4]])
+max_size = as.numeric(args[[5]])
 if (organism == "human") {
   library(org.Hs.eg.db)
   orgdb = org.Hs.eg.db
