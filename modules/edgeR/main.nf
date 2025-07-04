@@ -9,9 +9,9 @@
     memory 16.GB
     tag "Differential Expression"
     label "edgeR"
-    publishDir "${params.outdir}/differential_genes", mode: 'copy', pattern: "csv"
-    publishDir "${params.outdir}/differential_genes/", mode: 'copy', pattern: "figs"
-    publishDir "${params.outdir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_deg.txt"
+    publishDir "${params.outputDir}/differential_genes", mode: 'copy', pattern: "csv"
+    publishDir "${params.outputDir}/differential_genes/", mode: 'copy', pattern: "figs"
+    publishDir "${params.outputDir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_deg.txt"
     input:
     file salmon_files
     file index
@@ -40,9 +40,9 @@
     memory 16.GB
     tag "Differential Expression"
     label "edgeR"
-    publishDir "${params.outdir}/differential_transcripts", mode: 'copy', pattern: "csv"
-    publishDir "${params.outdir}/differential_transcripts/", mode: 'copy', pattern: "figs"
-    publishDir "${params.outdir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_det.txt"
+    publishDir "${params.outputDir}/differential_transcripts", mode: 'copy', pattern: "csv"
+    publishDir "${params.outputDir}/differential_transcripts/", mode: 'copy', pattern: "figs"
+    publishDir "${params.outputDir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_det.txt"
     input:
     file salmon_files
     val organism
