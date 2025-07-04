@@ -29,8 +29,8 @@
     script:
     """
     mkdir cache
+    mkdir ah_cache
     differential_genes.R ${transcriptome} ${gtf} ${organism} ${design} ${contrast_matrix} ${min_size} ${max_size}
-
     """
 
  }
