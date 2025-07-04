@@ -5,8 +5,8 @@ process salmon_quant{
     tag "Salmon quant"
     cpus 16
     memory 24.GB
-    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "${sample}", saveAs: {file -> "salmon_quant"}
-    publishDir "${params.outdir}/pipeline_info/", mode: "copy", pattern: "salmon_version.txt"
+    publishDir "${params.outputDir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "${sample}", saveAs: {file -> "salmon_quant"}
+    publishDir "${params.outputDir}/pipeline_info/", mode: "copy", pattern: "salmon_version.txt"
     input:
     tuple val(sample), path(r1), path(r2)
     path salmon_index
@@ -55,7 +55,7 @@ process salmon_quant{
 process salmon_index{
     label 'salmon'
     tag "Salmon index"
-    publishDir "${params.outdir}/ref/", mode: 'copy'
+    publishDir "${params.outputDir}/ref/", mode: 'copy'
     input:
     file transcriptome
     file genome

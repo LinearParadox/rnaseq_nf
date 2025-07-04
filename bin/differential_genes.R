@@ -3,14 +3,12 @@
 library(edgeR)
 library(clusterProfiler)
 library(dplyr)
+library(biomaRt)
 library(limma)
 library(msigdbr)
-library(tximeta)
-
+library(tximport)
 writeLines(capture.output(sessionInfo()), "sessionInfo_deg.txt")
 
-#2 fasta
-#3 gtf
 #4 organism
 #5 design_matrix
 #6 contrast matrix
@@ -20,39 +18,48 @@ writeLines(capture.output(sessionInfo()), "sessionInfo_deg.txt")
 
 
 args = commandArgs(trailingOnly = T)
-fasta = args[[1]]
-gtf = args[[2]]
-organism=args[[3]]
-design = as.matrix(read.csv(args[[4]], header=T, row.names=1))
-coef <- as.matrix(read.csv(args[[5]], header=T, row.names=1))
-min_size = as.numeric(args[[6]])
-max_size = as.numeric(args[[7]])
+organism=args[[1]]
+design = as.matrix(read.csv(args[[2]], header=T, row.names=1))
+coef <- as.matrix(read.csv(args[[3]], header=T, row.names=1))
+min_size = as.numeric(args[[4]])
+max_size = as.numeric(args[[5]])
 if (organism == "human") {
   library(org.Hs.eg.db)
   orgdb = org.Hs.eg.db
-  makeLinkedTxome(indexDir="salmon_index", source="Gencode", organism="Homo sapiens",
-                  release="--", genome="--", fasta=fasta, gtf=gtf, write=FALSE)
+  mart <- useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
+  symbol_key <- "hgnc_symbol"
 } else {
   library(org.Mm.eg.db)
-  makeLinkedTxome(indexDir="salmon_index", source="Gencode", organism="Mus musculus",
-                  release="--", genome="", fasta=fasta, gtf=gtf, write=FALSE)
   orgdb = org.Mm.eg.db
+  mart <- useEnsembl(dataset = "mmusculus_gene_ensembl", biomart='ensembl')
+  symbol_key <- "mgi_symbol"
 }
-se <- tximeta(paste0(rownames(design),"/quant.sf"), useHub = T)
-se <- summarizeToGene(se, assignRanges="abundant")
-gse <- addIds(se, "SYMBOL", gene=TRUE)
-y <- makeDGEList(gse)
-rm(gse)
-rm(se)
+files <- paste0(rownames(design), "/", 'quant.genes.sf')
+names(files) <- rownames(design)
+txi <- tximport(files, type="salmon", txIn=F, geneIdCol="Name", lengthCol="EffectiveLength", abundanceCol="TPM",countsCol="NumReads")
+cts <- txi$counts
+normMat <- txi$length
+normMat <- normMat/exp(rowMeans(log(normMat)))
+normCts <- cts/normMat
+eff.lib <- calcNormFactors(normCts) * colSums(normCts)
+normMat <- sweep(normMat, 2, eff.lib, "*")
+normMat <- log(normMat)
+y <- DGEList(cts, genes=rownames(cts))
+y <- scaleOffset(y, normMat)
+
 y$samples$lib.size <- colSums(y$counts)
-keep <- filterByExpr(y)
+keep <- filterByExpr(y, design = design)
 y <- y[keep, , keep.lib.sizes=FALSE]
 y <- normLibSizes(y)
+annot <-biomaRt::select(mart, keys=rownames(y$counts), keytype="ensembl_gene_id_version", columns=c("ensembl_gene_id_version", symbol_key))
+annot <- annot[!duplicated(annot$ensembl_gene_id_version),]
+rownames(annot) <- annot[,1]
+y$genes$SYMBOL <- annot[[symbol_key]]
+colnames(y$genes) <- c("gene_id", "SYMBOL")
 dir.create("figs", showWarnings = FALSE)
 png("figs/MDS_plot.png")
 plotMDS(y)
 dev.off()
-print(design)
 fit <- glmQLFit(y, design=design, robust=T)
 png("figs/edgeR_counts_fit.png")
 plotQLDisp(fit)
@@ -65,7 +72,7 @@ test<-lapply(colnames(coef), FUN=function(x){
   df<-data.frame(topTags(qlf, n=Inf, adjust.method="BH", p.value=1)) %>%
     dplyr::select(c("SYMBOL", "gene_id", "logFC", "logCPM", "F", "PValue", "FDR"))
   df$gene_id <- gsub("\\..*","", df$gene_id)
-  write.csv(df, paste0("csv/de/", x, ".csv"))
+  write.csv(df, paste0("csv/de/", x, ".csv"), row.names = F)
   ranked_list <- df$logFC * -log10(df$PValue)
   names(ranked_list) <- df$gene_id
   ranked_list <- ranked_list[!is.na(ranked_list)]
@@ -105,5 +112,5 @@ test<-lapply(colnames(coef), FUN=function(x){
         maxGSSize    = max_size,
         pvalueCutoff = 0.05,
         verbose      = FALSE)
-  write.csv(gsea[], paste0("csv/gsea/", x, "/gomf.csv"))
+  write.csv(gsea[], paste0("csv/gsea/", x, "/gobp.csv"))
 })
