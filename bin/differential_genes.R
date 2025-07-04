@@ -38,10 +38,12 @@ if (organism == "human") {
                   release="--", genome="", fasta=fasta, gtf=gtf, write=FALSE)
   orgdb = org.Mm.eg.db
 }
-se <- tximeta(rownames(design), useHub = T)
+se <- tximeta(paste0(rownames(design),"/quant.sf"), useHub = T)
 se <- summarizeToGene(se, assignRanges="abundant")
 gse <- addIds(se, "SYMBOL", gene=TRUE)
 y <- makeDGEList(gse)
+rm(gse)
+rm(se)
 y$samples$lib.size <- colSums(y$counts)
 keep <- filterByExpr(y)
 y <- y[keep, , keep.lib.sizes=FALSE]
@@ -74,7 +76,7 @@ test<-lapply(colnames(coef), FUN=function(x){
   dir.create(paste0("csv/gsea/", x), showWarnings = FALSE)
   gsea <- clusterProfiler::GSEA(ranked_list, TERM2GENE = hallmark)
   write.csv(gsea[], paste0("csv/gsea/", x, "/hallmarks.csv"))
-  gseGO(geneList     = ranked_list,
+  gsea<-gseGO(geneList     = ranked_list,
         OrgDb        = orgdb,
         keyType      = "ENSEMBL",
         ont          = "CC",
@@ -83,7 +85,7 @@ test<-lapply(colnames(coef), FUN=function(x){
         pvalueCutoff = 0.05,
         verbose      = FALSE)
   write.csv(gsea[], paste0("csv/gsea/", x, "/gocc.csv"))
-  gseGO(geneList     = ranked_list,
+  gsea<-gseGO(geneList     = ranked_list,
         OrgDb        = orgdb,
         ont          = "MF",
         keyType      = "ENSEMBL",
@@ -92,7 +94,7 @@ test<-lapply(colnames(coef), FUN=function(x){
         pvalueCutoff = 0.05,
         verbose      = FALSE)
   write.csv(gsea[], paste0("csv/gsea/", x, "/gomf.csv"))
-  gseGO(geneList     = ranked_list,
+  gsea<-gseGO(geneList     = ranked_list,
         OrgDb        = orgdb,
         ont          = "BP",
         keyType      = "ENSEMBL",
