@@ -50,6 +50,7 @@ normMat <- sweep(normMat, 2, eff.lib, "*")
 normMat <- log(normMat)
 y <- DGEList(cts, genes=rownames(cts))
 y <- scaleOffset(y, normMat)
+
 y$samples$lib.size <- colSums(y$counts)
 keep <- filterByExpr(y, design = design)
 y <- y[keep, , keep.lib.sizes=FALSE]
