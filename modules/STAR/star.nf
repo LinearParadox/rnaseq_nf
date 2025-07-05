@@ -11,6 +11,9 @@
 
     publishDir "${params.outdir}/ref/", mode: 'copy'
 
+    cpus 16
+    memory 72.GB
+
     input: 
     file genome
     file gtf

@@ -8,6 +8,7 @@
     cpus 2
     memory 8.GB
     tag "Differential Expression"
+    label "edgeR"
     publishDir "${params.outdir}/differential_genes", mode: 'copy', pattern: "csv"
     publishDir "${params.outdir}/differential_genes/", mode: 'copy', pattern: "figs"
     publishDir "${params.outdir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_deg.txt"
@@ -39,6 +40,7 @@
     cpus 2
     memory 8.GB
     tag "Differential Expression"
+    label "edgeR"
     publishDir "${params.outdir}/differential_transcripts", mode: 'copy', pattern: "csv"
     publishDir "${params.outdir}/differential_transcripts/", mode: 'copy', pattern: "figs"
     publishDir "${params.outdir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_det.txt"

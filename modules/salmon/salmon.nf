@@ -3,8 +3,9 @@
 process salmon_quant{
     label 'salmon'
     tag "Salmon quant"
-    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', saveAs: {file -> "salmon_quant"}, 
-              pattern: "${sample}salmon"
+    cpus 16
+    memory 24.GB
+    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "${sample}", saveAs: {file -> "salmon_quant"}
     publishDir "${params.outdir}/pipeline_info/", mode: "copy", pattern: "salmon_version.txt"
     input:
     tuple val(sample), path(r1), path(r2)
