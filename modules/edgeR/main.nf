@@ -41,7 +41,7 @@
     memory 8.GB
     tag "Differential Expression"
     label "edgeR"
-    publishDir "${params.outdir}/differential_transcripts", mode: 'copy', pattern: "csv"
+    publishDir "${params.outdir}/differential_transcripts/", mode: 'copy', pattern: "csv"
     publishDir "${params.outdir}/differential_transcripts/", mode: 'copy', pattern: "figs"
     publishDir "${params.outdir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_det.txt"
     input:
