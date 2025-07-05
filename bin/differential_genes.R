@@ -9,14 +9,6 @@ library(msigdbr)
 library(tximport)
 writeLines(capture.output(sessionInfo()), "sessionInfo_deg.txt")
 
-#4 organism
-#5 design_matrix
-#6 contrast matrix
-#7 min_gs size
-#8 max_gs size
-
-
-
 args = commandArgs(trailingOnly = T)
 organism=args[[1]]
 design = as.matrix(read.csv(args[[2]], header=T, row.names=1))
@@ -46,7 +38,6 @@ normMat <- sweep(normMat, 2, eff.lib, "*")
 normMat <- log(normMat)
 y <- DGEList(cts, genes=rownames(cts))
 y <- scaleOffset(y, normMat)
-
 y$samples$lib.size <- colSums(y$counts)
 keep <- filterByExpr(y, design = design)
 y <- y[keep, , keep.lib.sizes=FALSE]
