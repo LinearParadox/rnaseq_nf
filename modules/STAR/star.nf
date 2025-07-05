@@ -9,7 +9,7 @@
     tag "STAR index"
     label 'star'
 
-    publishDir "${params.outputDir}/ref/", mode: 'copy'
+    publishDir "${params.outdir}/ref/", mode: 'copy'
 
     cpus 16
     memory 72.GB
@@ -46,8 +46,8 @@ process STARalign {
     label 'star'
     tag "STAR align"
 
-    publishDir "${params.outputDir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.bam"
-    publishDir "${params.outputDir}/pipeline_info/", mode: "copy", pattern: "STAR_version.txt"
+    publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "*.bam"
+    publishDir "${params.outdir}/pipeline_info/", mode: "copy", pattern: "STAR_version.txt"
 
     input:
     tuple val(sample), path(r1), path(r2)
