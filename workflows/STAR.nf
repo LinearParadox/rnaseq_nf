@@ -14,7 +14,6 @@ workflow star {
         } else {
         star_index = STARindex(file(genome), file(gtf), read_length).index.collect()
         }
-	println star_index
         align = STARalign(samples, star_index, file(gtf))
     emit:
         bam = align.bam
