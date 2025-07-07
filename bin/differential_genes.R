@@ -10,7 +10,7 @@ library(tximport)
 writeLines(capture.output(sessionInfo()), "sessionInfo_deg.txt")
 
 args = commandArgs(trailingOnly = T)
-organism=args[[1]]
+organism="args[[1]]"
 design = as.matrix(read.csv(args[[2]], header=T, row.names=1))
 coef <- as.matrix(read.csv(args[[3]], header=T, row.names=1))
 min_size = as.numeric(args[[4]])
@@ -20,11 +20,13 @@ if (organism == "human") {
   orgdb = org.Hs.eg.db
   mart <- useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
   symbol_key <- "hgnc_symbol"
+  species <- "Homo sapiens"
 } else {
   library(org.Mm.eg.db)
   orgdb = org.Mm.eg.db
   mart <- useEnsembl(dataset = "mmusculus_gene_ensembl", biomart='ensembl')
   symbol_key <- "mgi_symbol"
+  species <- "Mus musculus"
 }
 files <- paste0(rownames(design), "/", 'quant.genes.sf')
 names(files) <- rownames(design)
@@ -44,6 +46,10 @@ y <- y[keep, , keep.lib.sizes=FALSE]
 y <- normLibSizes(y)
 annot <-biomaRt::select(mart, keys=rownames(y$counts), keytype="ensembl_gene_id_version", columns=c("ensembl_gene_id_version", symbol_key))
 annot <- annot[!duplicated(annot$ensembl_gene_id_version),]
+transcripts <- rownames(y)[!(rownames(y) %in% annot$ensembl_gene_id_version)]
+df <- data.frame(transcripts, rep(NA, length(transcripts)))
+colnames(df) <- c("ensembl_gene_id_version", symbol_key)
+annot <- rbind(annot, df)
 rownames(annot) <- annot[,1]
 y$genes$SYMBOL <- annot[[symbol_key]]
 colnames(y$genes) <- c("gene_id", "SYMBOL")
@@ -69,7 +75,7 @@ test<-lapply(colnames(coef), FUN=function(x){
   ranked_list <- ranked_list[!is.na(ranked_list)]
   ranked_list <- ranked_list[!is.infinite(ranked_list)]
   ranked_list <- ranked_list[order(ranked_list, decreasing = T)]
-  hallmark <- msigdbr(species=organism, collection="H") %>%
+  hallmark <- msigdbr(species=species, collection="H") %>%
     dplyr::select(c(gs_name, ensembl_gene))
   dir.create(paste0("csv/gsea/", x), showWarnings = FALSE)
   gsea <- clusterProfiler::GSEA(ranked_list, TERM2GENE = hallmark)
