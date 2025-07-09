@@ -14,6 +14,7 @@
     publishDir "${params.outdir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_deg.txt"
     input:
     file salmon_files
+    file script
     val organism
     file design
     file contrast_matrix
@@ -27,7 +28,7 @@
     """
     mkdir cache
     mkdir ah_cache
-    differential_genes.R ${organism} ${design} ${contrast_matrix} ${min_size} ${max_size}
+    Rscript ${script} ${organism} ${design} ${contrast_matrix} ${min_size} ${max_size}
     """
 
  }
@@ -42,6 +43,7 @@
     publishDir "${params.outdir}/pipeline_info/", mode: 'copy', pattern: "sessionInfo_det.txt"
     input:
     file salmon_files
+    file script
     val organism
     file design
     file contrast_matrix
@@ -52,7 +54,7 @@
     script:
     """
     mkdir cache
-    differential_transcripts.R  ${organism} ${design} ${contrast_matrix}
+    Rscript ${script}  ${organism} ${design} ${contrast_matrix}
 
     """
 

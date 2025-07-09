@@ -11,6 +11,7 @@ include { star } from './workflows/STAR.nf'
 include { differential_expression } from './modules/edgeR/main.nf'
 include { differential_transcripts } from './modules/edgeR/main.nf'
 include { multiqc } from './modules/multiqc/multiqc.nf'
+include { zip_files } from './modules/zip/zip.nf'
 nextflow.enable.moduleBinaries = true
 
 workflow {
@@ -37,16 +38,18 @@ workflow {
     salmon_quant = salmon_quant(qc_samples.out.trimmed, salmon_index, file(params.gtf), params.library_type, params.gibbs_sampling,
                                 params.seq_bias, params.gc_bias, params.pos_bias, params.dump_eq)
     salmon_files = salmon_quant.salmon_file.collect()
-    differential_expression(
+    diff_exp=differential_expression(
         salmon_files,
+        file("/home/ec2-user/test-script/differential_genes.R"),
         params.organism,
         file(params.design),
         file(params.contrast_matrix),
         params.min_gs_size,
         params.max_gs_size
     )
-    differential_transcripts(
+    diff_tran=differential_transcripts(
         salmon_files,
+        file("/home/ec2-user/test-script/differential_transcripts.R"),
         params.organism,
         file(params.design),
         file(params.contrast_matrix)
@@ -55,5 +58,12 @@ workflow {
         qc_samples.out.multiqc.collect(),
         salmon_quant.salmon_file.collect(),
         star_logs.ifEmpty([])
+    )
+    zip_files(
+        diff_exp.csv.collect(),
+        diff_exp.figures.collect(),
+        diff_tran.csv.collect(),
+        diff_tran.figures.collect(),
+        multiqc.out.report.collect()
     )
 }

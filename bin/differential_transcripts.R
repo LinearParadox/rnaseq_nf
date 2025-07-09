@@ -35,7 +35,7 @@ annot <-biomaRt::select(mart, keys=rownames(y$genes), keytype="ensembl_transcrip
 annot<-annot[!duplicated(annot$ensembl_transcript_id_version),]
 annot[!is.na(annot$transcript_is_canonical), "transcript_is_canonical"] <- "TRUE"
 annot[is.na(annot$transcript_is_canonical), "transcript_is_canonical"] <- "FALSE"
-rownames(annot) <- annot[,1]
+annot <- annot[match(rownames(y$genes), annot$ensembl_transcript_id_version),]
 y$genes$SYMBOL <- annot[[symbol_key]]
 y$genes$TYPE <- annot$transcript_biotype
 y$genes$is_canonical <- annot$transcript_is_canonical
@@ -55,3 +55,13 @@ test<-lapply(colnames(coef), FUN=function(x){
     dplyr::select(c("SYMBOL", "TYPE", "is_canonical","logFC", "logCPM", "F", "PValue", "FDR"))
   write.csv(df, paste0("csv/de/", x, ".csv"))
 })
+cpm <- cpm(y, log=F, offset=y$offset)
+logcpm <- cpm(y, log=T, offset=y$offset)
+cpm <- data.frame(cpm)
+logcpm <- data.frame(logcpm)
+cpm$symbol <- y$genes$SYMBOL
+logcpm$symbol <- y$genes$SYMBOL
+cpm <- cpm %>% relocate(symbol)
+logcpm <- logcpm %>% relocate(symbol)
+write.csv(cpm, "csv/cpm.csv", row.names = T)
+write.csv(logcpm, "csv/logcpm.csv", row.names = T)

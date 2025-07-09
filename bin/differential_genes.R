@@ -47,10 +47,10 @@ y <- normLibSizes(y)
 annot <-biomaRt::select(mart, keys=rownames(y$counts), keytype="ensembl_gene_id_version", columns=c("ensembl_gene_id_version", symbol_key))
 annot <- annot[!duplicated(annot$ensembl_gene_id_version),]
 transcripts <- rownames(y)[!(rownames(y) %in% annot$ensembl_gene_id_version)]
-df <- data.frame(transcripts, rep(NA, length(transcripts)))
+df <- data.frame(transcripts, rep("", length(transcripts)))
 colnames(df) <- c("ensembl_gene_id_version", symbol_key)
 annot <- rbind(annot, df)
-rownames(annot) <- annot[,1]
+annot <- annot[match(rownames(y$genes), annot$ensembl_gene_id_version),]
 y$genes$SYMBOL <- annot[[symbol_key]]
 colnames(y$genes) <- c("gene_id", "SYMBOL")
 dir.create("figs", showWarnings = FALSE)
@@ -111,3 +111,13 @@ test<-lapply(colnames(coef), FUN=function(x){
         verbose      = FALSE)
   write.csv(gsea[], paste0("csv/gsea/", x, "/gobp.csv"))
 })
+cpm <- cpm(y, log=F, offset=y$offset)
+logcpm <- cpm(y, log=T, offset=y$offset)
+cpm <- data.frame(cpm)
+logcpm <- data.frame(logcpm)
+cpm$symbol <- y$genes$SYMBOL
+logcpm$symbol <- y$genes$SYMBOL
+cpm <- cpm %>% relocate(symbol)
+logcpm <- logcpm %>% relocate(symbol)
+write.csv(cpm, "csv/cpm.csv", row.names = T)
+write.csv(logcpm, "csv/logcpm.csv", row.names = T)
