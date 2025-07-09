@@ -40,7 +40,6 @@ workflow {
     salmon_files = salmon_quant.salmon_file.collect()
     diff_exp=differential_expression(
         salmon_files,
-        file("/home/ec2-user/test-script/differential_genes.R"),
         params.organism,
         file(params.design),
         file(params.contrast_matrix),
@@ -49,7 +48,6 @@ workflow {
     )
     diff_tran=differential_transcripts(
         salmon_files,
-        file("/home/ec2-user/test-script/differential_transcripts.R"),
         params.organism,
         file(params.design),
         file(params.contrast_matrix)
