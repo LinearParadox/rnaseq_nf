@@ -38,6 +38,11 @@ workflow {
         salmon_quant = salmon_quant(qc_samples.out.trimmed, salmon_index, file(params.gtf), params.library_type, params.gibbs_sampling,
                                     params.seq_bias, params.gc_bias, params.pos_bias, params.dump_eq)
         salmon_files = salmon_quant.salmon_file.collect()
+        multiqc(
+            qc_samples.out.multiqc.collect(),
+            salmon_quant.salmon_file.collect(),
+            star_logs.ifEmpty([])
+        )
     } else {
         salmon_files = Channel.fromPath(params.samplesheet).splitCsv().map {
         def sample = it[0]
@@ -60,9 +65,5 @@ workflow {
         file(params.design),
         file(params.contrast_matrix)
     )
-    multiqc(
-        qc_samples.out.multiqc.collect(),
-        salmon_quant.salmon_file.collect(),
-        star_logs.ifEmpty([])
-    )
+    
 }
