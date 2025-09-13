@@ -15,7 +15,7 @@
     "GitHub.copilot-chat",            // GitHub Copilot Chat interface
     "nextflow.nextflow",	      // Nextflow support
 ],
-  "postCreateCommand": "nextflow -version",
+  "postCreateCommand": "git config --global user.name 'LinearParadox'; git config --global user.email 'lp@example.com'; nextflow -version",
   "remoteUser": "vscode"
 }
 
