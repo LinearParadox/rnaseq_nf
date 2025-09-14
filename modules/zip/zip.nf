@@ -14,6 +14,6 @@ Zipping outputs for easy download!
     file "outs.zip"
     script:
     """
-    zip -r outs.zip .
+    zip -r outs.zip ./*
     """
  }
