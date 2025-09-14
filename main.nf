@@ -65,5 +65,6 @@ workflow {
         file(params.design),
         file(params.contrast_matrix)
     )
+    zip_outputs(differential_transcripts.out.csv, differential_expression.out.csv)
     
 }
