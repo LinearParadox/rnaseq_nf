@@ -11,9 +11,9 @@ Zipping outputs for easy download!
     path differential_transcripts, name: 'differential_transcripts/csv'
     path differential_genes, name: 'differential_genes/csv'
     output:
-    path "outs.zip", emit: zip
+    path "out_files.zip", emit: zip
     script:
     """
-    zip -r outs.zip ./*
+    zip -r out_files.zip ./*
     """
  }
