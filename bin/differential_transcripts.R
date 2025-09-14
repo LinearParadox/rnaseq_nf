@@ -77,8 +77,7 @@ test<-lapply(colnames(coef), FUN=function(x){
   qlf <- glmQLFTest(fit, contrast=coef[,x])
   df<-data.frame(topTags(qlf, n=Inf, adjust.method="BH", p.value=1)) %>%
     dplyr::select(c("SYMBOL", "TYPE", "is_canonical","logFC", "logCPM", "F", "PValue", "FDR"))
-  sample.names <- get_samples(coef[,x], design)
-  counts.keep <- counts[rownames(df), sample.names]
+  counts.keep <- counts[rownames(df), rownames(design)]
   df <- cbind(df, counts.keep[rownames(df),])
   write.csv(df, paste0("csv/de/", x, ".csv"))
 })
