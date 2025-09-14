@@ -12,7 +12,6 @@ include { differential_expression } from './modules/edgeR/main.nf'
 include { differential_transcripts } from './modules/edgeR/main.nf'
 include { multiqc } from './modules/multiqc/multiqc.nf'
 include { zip_outputs } from './modules/zip/zip.nf'
-nextflow.enable.moduleBinaries = true
 
 workflow {
     if (!params.gtf | !params.samplesheet){
