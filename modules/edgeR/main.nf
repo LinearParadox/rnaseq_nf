@@ -27,7 +27,7 @@
     """
     mkdir cache
     mkdir ah_cache
-    differential_genes.R ${organism} ${design} ${contrast_matrix} ${min_size} ${max_size}
+    Rscript differential_genes.R --organism ${organism} --design ${design} --coef ${contrast_matrix} --min_gs_size ${min_size} --max_gs_size ${max_size}
     """
 
  }
@@ -52,7 +52,7 @@
     script:
     """
     mkdir cache
-    differential_transcripts.R  ${organism} ${design} ${contrast_matrix}
+    Rscript differential_transcripts.R  --organism ${organism} --design ${design} --coef ${contrast_matrix}
 
     """
 

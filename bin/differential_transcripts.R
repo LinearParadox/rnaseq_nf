@@ -40,10 +40,9 @@ if (org == "human") {
   mart <- useEnsembl(dataset = "mmusculus_gene_ensembl", biomart='ensembl')
   symbol_key <- "mgi_symbol"
 }
-files <- paste0(rownames(design), "/salmon_quant")
+files <- rownames(design)
 catch <- catchSalmon(files)
 divided.counts <- catch$counts/catch$annotation$Overdispersion
-colnames(divided.counts)<-rownames(design)
 y <- DGEList(counts = divided.counts,
              genes = catch$annotation)
 y$samples$lib.size <- colSums(y$counts)
