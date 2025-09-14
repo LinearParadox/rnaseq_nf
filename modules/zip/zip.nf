@@ -1,4 +1,8 @@
 
+ /*
+Zipping outputs for easy download!
+ */
+
  process zip_outputs{
     cpus 1
     memory 8.GB
