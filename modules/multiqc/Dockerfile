@@ -1,1 +1,2 @@
-FROM multiqc/multiqc
+FROM multiqc/multiqc:latest
+WORKDIR /working
