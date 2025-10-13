@@ -50,7 +50,7 @@ workflow {
         return [sample, file]
         }.collect()
     }
-    
+    if (params.do_deg) {
     differential_expression(
         salmon_files,
         params.organism,
@@ -66,5 +66,5 @@ workflow {
         file(params.contrast_matrix)
     )
     zip_outputs(differential_transcripts.out.csv, differential_expression.out.csv)
-    
+    }
 }
