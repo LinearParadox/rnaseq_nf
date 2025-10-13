@@ -1,1 +1,1 @@
-FROM linearparadox/star
+FROM linearparadox/star:latest
