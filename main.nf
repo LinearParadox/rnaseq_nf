@@ -18,11 +18,11 @@ workflow {
         error "A gtf file and a samplesheet must be provided for the pipeline to run."
     }
     if (!params.deg_only) {
-        samples=Channel.fromPath(params.samplesheet).splitCsv().map {
-        def sample = it[0]
-        def r1 = file(it[1])
-        def r2 = file(it[2])
-        return [sample, r1, r2]
+        samples=channel.fromPath(params.samplesheet).splitCsv().map { fields ->
+            def sample = fields[0]
+            def r1 = file(fields[1])
+            def r2 = file(fields[2])
+            return [sample, r1, r2]
         } | groupTuple()
         qc_samples(samples)
         star_logs = channel.empty()
@@ -44,10 +44,10 @@ workflow {
             star_logs.ifEmpty([])
         )
     } else {
-        salmon_files = Channel.fromPath(params.samplesheet).splitCsv().map {
-        def sample = it[0]
-        def file = file(it[1])
-        return [sample, file]
+        salmon_files = channel.fromPath(params.samplesheet).splitCsv().map { fields ->
+            def sample = fields[0]
+            def quantFile = file(fields[1])
+            return [sample, quantFile]
         }.collect()
     }
     if (params.do_deg) {
