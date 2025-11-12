@@ -1,4 +1,5 @@
 process STARfusion {
+    container 'trinityctat/starfusion:1.15.1'
     cpus 16
     memory 96.GB
     label 'fusion'
