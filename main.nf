@@ -42,7 +42,7 @@ workflow {
             salmon_files = salmon_quant.salmon_file.collect()
         }
         if (params.run_fusion) {
-            STARfusion(qc_samples.out.trimmed, file(params.star_fusion_index))
+            STARfusion(qc_samples.out.trimmed, file(params.fusion_index))
         }
         if (params.run_multiqc) {
         multiqc(
