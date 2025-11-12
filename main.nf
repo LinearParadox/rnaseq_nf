@@ -27,11 +27,11 @@ workflow {
         } | groupTuple()
         qc_samples(samples)
         star_logs = channel.empty()
-        if (params.star_align) {
+        if (params.run_star) {
             star(qc_samples.out.trimmed, params.star_index, params.gtf, params.genome, params.readlength)
             star_logs = star.out.starlog.collect()
         }
-        if (params.do_salmon) {
+        if (params.run_salmon) {
             if (!file(params.salmon_index).exists()) {
                 salmon_index = salmon_index(file(params.salmon_transcriptome), file(params.genome), params.kmer_size).index.collect()
             } else {
@@ -41,11 +41,16 @@ workflow {
                                         params.seq_bias, params.gc_bias, params.pos_bias, params.dump_eq)
             salmon_files = salmon_quant.salmon_file.collect()
         }
+        if (params.run_fusion) {
+            STARfusion(qc_samples.out.trimmed, file(params.star_fusion_index))
+        }
+        if (params.run_multiqc) {
         multiqc(
             qc_samples.out.multiqc.collect(),
             salmon_files.ifEmpty([]),
             star_logs.ifEmpty([])
         )
+        }
     } else {
         salmon_files = channel.fromPath(params.samplesheet).splitCsv().map { fields ->
             def sample = fields[0]
@@ -53,7 +58,7 @@ workflow {
             return [sample, quantFile]
         }.collect()
     }
-    if (params.do_deg) {
+    if (params.run_deg) {
     differential_expression(
         salmon_files,
         params.organism,
