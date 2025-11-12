@@ -15,8 +15,8 @@ include { zip_outputs } from './modules/zip/zip.nf'
 include { STARfusion } from './modules/STAR-fusion/fusion.nf'
 
 workflow {
-    if (!params.gtf | !params.samplesheet){
-        error "A gtf file and a samplesheet must be provided for the pipeline to run."
+    if ( !params.samplesheet){
+        error "A samplesheet must be provided for the pipeline to run."
     }
     if (!params.deg_only) {
         samples=channel.fromPath(params.samplesheet).splitCsv().map { fields ->
