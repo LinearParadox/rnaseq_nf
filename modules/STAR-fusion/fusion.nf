@@ -1,7 +1,7 @@
 process STARfusion {
     cpus 16
     memory 96.GB
-    label 'star'
+    label 'fusion'
     tag "STAR align"
 
     publishDir "${params.outdir}/per-sample-outs/${sample}/", mode: 'copy', pattern: "fusion"
