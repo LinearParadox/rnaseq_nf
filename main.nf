@@ -12,6 +12,7 @@ include { differential_expression } from './modules/edgeR/main.nf'
 include { differential_transcripts } from './modules/edgeR/main.nf'
 include { multiqc } from './modules/multiqc/multiqc.nf'
 include { zip_outputs } from './modules/zip/zip.nf'
+include { STARfusion } from './modules/STAR-fusion/fusion.nf'
 
 workflow {
     if (!params.gtf | !params.samplesheet){
@@ -30,17 +31,19 @@ workflow {
             star(qc_samples.out.trimmed, params.star_index, params.gtf, params.genome, params.readlength)
             star_logs = star.out.starlog.collect()
         }
-        if (!file(params.salmon_index).exists()) {
-            salmon_index = salmon_index(file(params.salmon_transcriptome), file(params.genome), params.kmer_size).index.collect()
-        } else {
-            salmon_index = channel.fromPath(params.salmon_index).collect()
+        if (params.do_salmon) {
+            if (!file(params.salmon_index).exists()) {
+                salmon_index = salmon_index(file(params.salmon_transcriptome), file(params.genome), params.kmer_size).index.collect()
+            } else {
+                salmon_index = channel.fromPath(params.salmon_index).collect()
+            }
+            salmon_quant = salmon_quant(qc_samples.out.trimmed, salmon_index, file(params.gtf), params.library_type, params.gibbs_sampling,
+                                        params.seq_bias, params.gc_bias, params.pos_bias, params.dump_eq)
+            salmon_files = salmon_quant.salmon_file.collect()
         }
-        salmon_quant = salmon_quant(qc_samples.out.trimmed, salmon_index, file(params.gtf), params.library_type, params.gibbs_sampling,
-                                    params.seq_bias, params.gc_bias, params.pos_bias, params.dump_eq)
-        salmon_files = salmon_quant.salmon_file.collect()
         multiqc(
             qc_samples.out.multiqc.collect(),
-            salmon_quant.salmon_file.collect(),
+            salmon_files.ifEmpty([]),
             star_logs.ifEmpty([])
         )
     } else {
