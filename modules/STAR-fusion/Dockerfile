@@ -1,0 +1,1 @@
+FROM trinityctat/starfusion:latest

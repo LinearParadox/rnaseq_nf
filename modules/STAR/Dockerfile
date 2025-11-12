@@ -1,1 +1,1 @@
-FROM linearparadox/star:latest
+FROM trinityctat/starfusion:latest
