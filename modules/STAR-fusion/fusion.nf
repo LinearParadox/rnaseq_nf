@@ -19,9 +19,10 @@ process STARfusion {
         --left_fq ${r1} \\
         --right_fq ${r2} \\
         --output_dir fusion \\
-        --FusionInspector validate \\
+        --FusionInspector 'validate' \\
         --examine_coding_effect \\
         --denovo_reconstruction \\
+        --extract_fusion_reads \\
         --CPU ${task.cpus}
     """
 }
