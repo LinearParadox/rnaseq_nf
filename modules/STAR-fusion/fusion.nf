@@ -23,6 +23,5 @@ process STARfusion {
         --examine_coding_effect \\
         --denovo_reconstruction \\
         --CPU ${task.cpus}
-    mv  Log.final.out ${sample}Log.final.out
     """
 }
