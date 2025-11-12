@@ -1,2 +1,2 @@
 FROM trinityctat/starfusion:latest
-WORKDIR /data
+WORKDIR /workingdir
