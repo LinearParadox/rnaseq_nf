@@ -21,7 +21,7 @@ process STARfusion {
         --output_dir fusion \\
         --FusionInspector 'validate' \\
         --examine_coding_effect \\
-        --denovo_reconstruction \\
+        --denovo_reconstruct \\
         --extract_fusion_reads \\
         --CPU ${task.cpus}
     """
